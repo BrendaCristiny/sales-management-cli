@@ -27,11 +27,13 @@ Exemplo de uso no terminal;
 
 Como executar?
 
-1- Clone o repositório.
+1- Clone o repositório:
+git clone https://github.com/BrendaCristiny/sales-management-cli.git
 2- Instale as dependências:
 pip install pyodbc
 3-Configure a conexão com seu SQL Server no código:
---
+SERVER=SEU_SERVIDOR
+DATABASE=SEU_BANCO
 4- Execute o programa:
 python sales_cli.py
 
