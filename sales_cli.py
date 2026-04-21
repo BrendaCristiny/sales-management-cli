@@ -8,7 +8,6 @@ dados_conexao = (
     "Trusted_Connection=yes;"
 )
 
-#  conexão única
 conexao = pyodbc.connect(dados_conexao)
 cursor = conexao.cursor()
 
@@ -28,7 +27,7 @@ def buscar():
                 print(f"ID: {linha[0]} | Cliente: {linha[1]} | Produto: {linha[2]} | Data: {linha[3]} | Valor: {linha[4]} | Quantidade: {linha[5]}")
 
     except Exception:
-        print("Erro ao buscar:")
+        print("Erro ao buscar.")
 
 
 def listar():
@@ -48,22 +47,27 @@ def pedir_data():
         data_input = input("Digite a data (YYYY-MM-DD): ")
 
         try:
-            data_formatada = datetime.strptime(data_input, "%Y-%m-%d")
-            return data_formatada
+            return datetime.strptime(data_input, "%Y-%m-%d")
         except:
             print("Data inválida! Use o formato YYYY-MM-DD.")
 
 
 def cadastrar():
     try:
-        id = int(input('Qual é o ID do cliente? ').strip())
+        id_venda = int(input('Qual é o ID da venda? ').strip())
         cliente = input('Qual é o nome do cliente? ').strip().lower()
         produto = input('Qual é o nome do produto? ').strip().lower()
         data = pedir_data()
-        preco = float(input('Diga o valor (sem formatação): ').strip())
+
+        try:
+            preco = float(input('Diga o valor (sem formatação): ').strip())
+        except ValueError:
+            print("Preço inválido!")
+            return
+
         quantidade = int(input('Quantos pedidos foram feitos? ').strip())
 
-        cursor.execute("SELECT * FROM vendas WHERE id_vendas = ?", (id,))
+        cursor.execute("SELECT * FROM vendas WHERE id_vendas = ?", (id_venda,))
         if cursor.fetchone():
             print("Esse ID já existe!")
             return
@@ -72,7 +76,7 @@ def cadastrar():
         (id_vendas, cliente, produto, data_venda, preco, quantidade)
         VALUES (?, ?, ?, ?, ?, ?)"""
 
-        valores = (id, cliente, produto, data, preco, quantidade)
+        valores = (id_venda, cliente, produto, data, preco, quantidade)
 
         cursor.execute(comando, valores)
         conexao.commit()
@@ -85,10 +89,10 @@ def cadastrar():
 
 def atualizar():
     try:
-        id = int(input('Qual o ID do cliente? ').strip())
+        id_venda = int(input('Qual o ID da venda? ').strip())
 
-        cursor.execute("SELECT * FROM vendas WHERE id_vendas = ?", (id,))
-        resultado = cursor.fetchall()
+        cursor.execute("SELECT * FROM vendas WHERE id_vendas = ?", (id_venda,))
+        resultado = cursor.fetchone()
 
         if not resultado:
             print('Poxa! não encontrei esse ID cadastrado.')
@@ -107,10 +111,7 @@ def atualizar():
                     return
 
                 comando = "UPDATE vendas SET cliente = ? WHERE id_vendas = ?"
-                cursor.execute(comando, (novo_nome, id))
-                conexao.commit()
-
-                print(f"Atualizado com sucesso! Novo nome: {novo_nome}")
+                cursor.execute(comando, (novo_nome, id_venda))
 
             elif atualizacao == "produto":
                 novo_produto = input("Digite o nome do produto: ").strip().lower()
@@ -120,62 +121,58 @@ def atualizar():
                     return
 
                 comando = "UPDATE vendas SET produto = ? WHERE id_vendas = ?"
-                cursor.execute(comando, (novo_produto, id))
-                conexao.commit()
-
-                print(f"Atualizado com sucesso! Novo produto: {novo_produto}")
+                cursor.execute(comando, (novo_produto, id_venda))
 
             elif atualizacao == "preco":
                 novo_preco = float(input("Digite o novo preço: ").strip())
 
                 comando = "UPDATE vendas SET preco = ? WHERE id_vendas = ?"
-                cursor.execute(comando, (novo_preco, id))
-                conexao.commit()
-
-                print(f"Atualizado com sucesso! Novo preço: {novo_preco}")
+                cursor.execute(comando, (novo_preco, id_venda))
 
             elif atualizacao == "quantidade":
                 nova_quantidade = int(input("Digite a nova quantidade: ").strip())
 
                 comando = "UPDATE vendas SET quantidade = ? WHERE id_vendas = ?"
-                cursor.execute(comando, (nova_quantidade, id))
-                conexao.commit()
-
-                print(f"Atualizado com sucesso! Nova quantidade: {nova_quantidade}")
+                cursor.execute(comando, (nova_quantidade, id_venda))
 
             else:
                 print("Opção inválida!")
+                return
+
+            conexao.commit()
+            print("Atualizado com sucesso!")
 
     except Exception:
         print("Erro ao atualizar.")
 
+
 def deletar():
     try:
-        id = int(input('Qual é o ID do cliente?').strip())
-        comando = "SELECT * FROM vendas WHERE id_vendas = ?"
-        cursor.execute(comando, (id,))
-        resultado = cursor.fetchall()
+        id_venda = int(input('Qual é o ID da venda? ').strip())
+
+        cursor.execute("SELECT * FROM vendas WHERE id_vendas = ?", (id_venda,))
+        resultado = cursor.fetchone()
 
         if not resultado:
-            print('Poxa! não encontrei esse ID cadastrado. Caso não saiba o ID, liste as vendas no menu principal.')
+            print('Poxa! não encontrei esse ID cadastrado.')
         else:
-            print("cadastro encontrado:")
-            for linha in resultado:
-                print(f"ID: {linha[0]} | Cliente: {linha[1]} | Produto: {linha[2]} | Data: {linha[3]} | Valor: {linha[4]} | Quantidade: {linha[5]}")
+            print("Cadastro encontrado:")
+            print(f"ID: {resultado[0]} | Cliente: {resultado[1]} | Produto: {resultado[2]} | Data: {resultado[3]} | Valor: {resultado[4]} | Quantidade: {resultado[5]}")
+
             exclusao = input('Tem certeza? [S/N] ').strip().lower()
+
             if exclusao in ['s', 'sim']:
                 comando = "DELETE FROM vendas WHERE id_vendas = ?"
-                cursor.execute(comando,(id))
+                cursor.execute(comando, (id_venda,))
                 conexao.commit()
                 print("Venda excluída com sucesso!")
             else:
-                print('Levando em consideração essa resposta, nada será excluído.')
-    
+                print('Nada foi excluído.')
+
     except Exception:
-        print("Erro ao deletar. Tente novamente!")
+        print("Erro ao deletar.")
 
 
-#  MENU PRINCIPAL
 def main():
     while True:
         print("\n1 - Buscar por nome")
@@ -204,8 +201,5 @@ def main():
             print("Opção inválida!")
 
 
-#  EXECUÇÃO
 main()
-
-# fechar conexão
 conexao.close()
