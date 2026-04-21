@@ -27,8 +27,8 @@ def buscar():
             for linha in resultado:
                 print(f"ID: {linha[0]} | Cliente: {linha[1]} | Produto: {linha[2]} | Data: {linha[3]} | Valor: {linha[4]} | Quantidade: {linha[5]}")
 
-    except Exception as erro:
-        print("Erro ao buscar:", erro)
+    except Exception:
+        print("Erro ao buscar:")
 
 
 def listar():
@@ -39,8 +39,8 @@ def listar():
         for linha in resultado:
             print(f"ID: {linha[0]} | Cliente: {linha[1]} | Produto: {linha[2]} | Data: {linha[3]} | Valor: {linha[4]} | Quantidade: {linha[5]}")
 
-    except Exception as erro:
-        print("Erro ao listar:", erro)
+    except Exception:
+        print("Erro ao listar.")
 
 
 def pedir_data():
@@ -79,8 +79,8 @@ def cadastrar():
 
         print("Cadastrado com sucesso!")
 
-    except Exception as erro:
-        print("Erro ao cadastrar:", erro)
+    except Exception:
+        print("Erro ao cadastrar.")
 
 
 def atualizar():
@@ -100,7 +100,7 @@ def atualizar():
                 return
 
             if atualizacao == "nome":
-                novo_nome = input("Digite o novo nome: ").strip().lower()
+                novo_nome = input("Digite o novo nome: ").strip()
 
                 if not novo_nome:
                     print("Valor inválido!")
@@ -146,8 +146,33 @@ def atualizar():
             else:
                 print("Opção inválida!")
 
-    except Exception as erro:
-        print("Erro ao atualizar:", erro)
+    except Exception:
+        print("Erro ao atualizar.")
+
+def deletar():
+    try:
+        id = int(input('Qual é o ID do cliente?').strip())
+        comando = "SELECT * FROM vendas WHERE id_vendas = ?"
+        cursor.execute(comando, (id,))
+        resultado = cursor.fetchall()
+
+        if not resultado:
+            print('Poxa! não encontrei esse ID cadastrado. Caso não saiba o ID, liste as vendas no menu principal.')
+        else:
+            print("cadastro encontrado:")
+            for linha in resultado:
+                print(f"ID: {linha[0]} | Cliente: {linha[1]} | Produto: {linha[2]} | Data: {linha[3]} | Valor: {linha[4]} | Quantidade: {linha[5]}")
+            exclusao = input('Tem certeza? [S/N] ').strip().lower()
+            if exclusao in ['s', 'sim']:
+                comando = "DELETE FROM vendas WHERE id_vendas = ?"
+                cursor.execute(comando,(id))
+                conexao.commit()
+                print("Venda excluída com sucesso!")
+            else:
+                print('Levando em consideração essa resposta, nada será excluído.')
+    
+    except Exception:
+        print("Erro ao deletar. Tente novamente!")
 
 
 #  MENU PRINCIPAL
@@ -157,6 +182,7 @@ def main():
         print("2 - Listar")
         print("3 - Cadastrar")
         print("4 - Atualizar venda")
+        print("5 - Deletar venda")
         print("0 - Sair")
 
         opcao = input("Escolha: ")
@@ -169,6 +195,8 @@ def main():
             cadastrar()
         elif opcao == "4":
             atualizar()
+        elif opcao == "5":
+            deletar()
         elif opcao == "0":
             print("Programa finalizado.")
             break
