@@ -23,6 +23,7 @@ Exemplo de uso no terminal;
 2 - Listar
 3 - Cadastrar
 4 - Atualizar venda
+5 - Deletar
 0 - Sair
 
 Como executar?
@@ -34,8 +35,7 @@ pip install pyodbc
 3-Configure a conexão com seu SQL Server no código:
 SERVER=SEU_SERVIDOR
 DATABASE=SEU_BANCO
-4- Execute o programa:
-python sales_cli.py
+4- Execute o programa.
 
 
 Este projeto foi desenvolvido com foco em:
@@ -47,11 +47,10 @@ Tratamento de erros com try/except
 Validação de dados de entrada
 
 Próximas melhorias:
-Implementar exclusão de registros (DELETE)
-Melhorar tratamento de erros
+Implementar exclusão de registros (DELETE) #Feito.
+Melhorar tratamento de erros #Em andamento
 Refatorar código em módulos
 Criar versão com API (FastAPI)
-Implementar sistema bancário
 
 Autora:
 Brenda Cristiny
