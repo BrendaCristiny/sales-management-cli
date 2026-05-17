@@ -5,7 +5,8 @@ Funcionalidades:
 Buscar vendas por nome do cliente,
 Listar todas as vendas,
 Cadastrar nova venda,
-Atualizar dados (cliente, produto, preço e quantidade).
+Atualizar dados (cliente, produto, preço e quantidade),
+Deletar.
 
 Tecnologias utilizadas:
 Python,
